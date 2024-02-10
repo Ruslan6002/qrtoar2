@@ -2,33 +2,86 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>WebAR Video Example</title>
+    <title>WebAR YouTube Video Example</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/3.3.0/aframe/build/aframe-ar.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        #start-button { 
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 999;
+            background-color: #808080; /* серый фон */
+            border: none;
+            border-radius: 50%; /* делаем кнопку круглой */
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        /* Стилизация треугольника внутри кнопки "Воспроизведение" */
+        #start-button:before {
+            content: "";
+            border-style: solid;
+            border-width:  10px 0 10px 15px;
+            border-color: transparent transparent transparent white;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+        /* Скрыть изначально фрейм YouTube */
+        #youtube-iframe {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            border: 0;
+        }
+    </style>
 </head>
 <body>
-    <a-scene embedded arjs='sourceType: webcam;'>
+    <a-scene embedded arjs='sourceType: webcam; debugUIEnabled: false;'>
         <a-marker preset="hiro" id="hiro-marker">
-            <a-entity position="0 0 0" rotation="-90 0 0">
-                <video id="yt-video" crossorigin playsinline muted loop preload="auto" width="16" height="9" src="https://www.youtube.com/watch?v=jZjm-XBgF1M"></video>
-            </a-entity>
+            <!-- Место для элемента a-entity или другого, который вы можете использовать как контейнер для видео -->
         </a-marker>
         <a-entity camera></a-entity>
     </a-scene>
+    <button id="start-button">Play Video</button>
+    <!-- Встроенный YouTube плеер в iframe -->
+    <iframe id="youtube-iframe" width="560" height="315"
+            src="https://www.youtube.com/embed/YOUR_VIDEO_ID?autoplay=1&playsinline=1"
+            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+    </iframe>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const marker = document.querySelector('#hiro-marker');
-            const video = document.getElementById('yt-video');
+            const button = document.getElementById('start-button');
+            const iframe = document.getElementById('youtube-iframe');
+
             marker.addEventListener('markerFound', () => {
-                video.play();
+                button.style.display = 'block'; // Показать кнопку, когда маркер найден
+                iframe.style.display = 'none';
             });
 
             marker.addEventListener('markerLost', () => {
-                video.pause();
+                iframe.style.display = 'none'; // Скрыть iframe
+                button.style.display = 'none'; // Скрыть кнопку
+            });
+
+            button.addEventListener('click', () => {
+                iframe.style.display = 'block'; // Показать iframe с YouTube видео
+                button.style.display = 'none'; // Скрыть кнопку воспроизведения
             });
         });
     </script>
-</body> 
+</body>
 </html>
