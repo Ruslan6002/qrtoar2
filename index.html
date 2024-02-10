@@ -48,50 +48,59 @@
         <a-entity camera></a-entity>
     </a-scene>
 
-    <script>
-      var player;
-      var videoPlayed = false;
+   <script>
+    var player;
+    var videoPlayed = false;
+    const button = document.getElementById('start-button');
 
-      document.addEventListener('DOMContentLoaded', () => {
-          const button = document.getElementById('start-button');
-
-          button.style.display = 'block'; // Показать кнопку до обнаружения маркера
-
-          button.addEventListener('click', () => {
-              if (!videoPlayed) {
-                  if (!player) {
-                      player = new YT.Player('player', {
-    height: '360',
-    width: '640',
-    videoId: 'Uh05DkvXbLk', // Замените 'VIDEO_ID' на реальный идентификатор видео
-    playerVars: {
-        'autoplay': 1, // Автовоспроизведение видео
-        'controls': 0, // Отключение элементов управления
-        'rel': 0, // Отключение рекомендаций в конце видео
-        'showinfo': 0 // Скрытие информации о видео
-    },
-    events: {
-        'onReady': onPlayerReady,
-        'onStateChange': onPlayerStateChange
+    function onPlayerReady(event) {
+        event.target.playVideo(); // Автоматически начать воспроизведение при готовности плеера
     }
-});
 
-                  }
-                  player.getIframe().style.display = 'block';
-                  videoPlayed = true;
-                  button.style.display = 'none';
-              }
-          });
+    function onPlayerStateChange(event) {
+        if (event.data === YT.PlayerState.ENDED) {
+            videoPlayed = false;
+        }
+    }
 
-          // Обработчик для обнаружения маркера
-          const marker = document.querySelector('#hiro-marker');
-          marker.addEventListener('markerFound', () => {
-              if(!videoPlayed && player && player.getPlayerState() === 1) {
-                  player.pauseVideo();
-              }
-              button.style.display = 'block';
-          });
-      });
-    </script>
+    document.addEventListener('DOMContentLoaded', () => {
+        button.style.display = 'none'; // Скрыть кнопку до обнаружения маркера
+
+        button.addEventListener('click', () => {
+            if (!videoPlayed) {
+                if (!player) {
+                    player = new YT.Player('player', {
+                        height: '360',
+                        width: '640',
+                        videoId: 'Uh05DkvXbLk', // Замените 'VIDEO_ID' на реальный идентификатор видео
+                        playerVars: {
+                            'autoplay': 1,
+                            'controls': 0,
+                            'rel': 0,
+                            'showinfo': 0
+                        },
+                        events: {
+                            'onReady': onPlayerReady,
+                            'onStateChange': onPlayerStateChange
+                        }
+                    });
+                }
+
+                player.getIframe().style.display = 'block';
+                videoPlayed = true;
+                button.style.display = 'none';
+            }
+        });
+
+        // Обработчик для обнаружения маркера
+        const marker = document.querySelector('#hiro-marker');
+        marker.addEventListener('markerFound', () => {
+            if(videoPlayed && player && player.getPlayerState() === 1) {
+                player.pauseVideo();
+            }
+            button.style.display = 'block'; // Показать кнопку при обнаружении маркера
+        });
+    });
+</script>
 </body>
 </html>
