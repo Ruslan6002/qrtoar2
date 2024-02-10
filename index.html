@@ -60,7 +60,22 @@
           button.addEventListener('click', () => {
               if (!videoPlayed) {
                   if (!player) {
-                      player = new YT.Player('player', { ... });
+                      player = new YT.Player('player', {
+    height: '360',
+    width: '640',
+    videoId: 'Uh05DkvXbLk', // Замените 'VIDEO_ID' на реальный идентификатор видео
+    playerVars: {
+        'autoplay': 1, // Автовоспроизведение видео
+        'controls': 0, // Отключение элементов управления
+        'rel': 0, // Отключение рекомендаций в конце видео
+        'showinfo': 0 // Скрытие информации о видео
+    },
+    events: {
+        'onReady': onPlayerReady,
+        'onStateChange': onPlayerStateChange
+    }
+});
+
                   }
                   player.getIframe().style.display = 'block';
                   videoPlayed = true;
