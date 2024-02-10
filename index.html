@@ -62,24 +62,33 @@
     </iframe>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const marker = document.querySelector('#hiro-marker');
-            const button = document.getElementById('start-button');
-            const iframe = document.getElementById('youtube-iframe');
+       document.addEventListener('DOMContentLoaded', () => {
+    const marker = document.querySelector('#hiro-marker');
+    const button = document.getElementById('start-button');
+    const iframe = document.getElementById('youtube-iframe');
 
-            marker.addEventListener('markerFound', () => {
-                button.style.display = 'block'; // Показать кнопку, когда маркер найден
-                iframe.style.display = 'none';
-            });
+    marker.addEventListener('markerFound', () => {
+        const markerPos = marker.object3D.getWorldPosition(); // Получаем позицию маркера
+        iframe.style.display = 'block'; // Показать iframe
+        iframe.style.top = window.innerHeight / 2 + markerPos.y + 'px'; // Обновляем позицию по вертикали
+        iframe.style.left = window.innerWidth / 2 + markerPos.x + 'px'; // Обновляем позицию по горизонтали
+        button.style.display = 'none'; // Скрыть кнопку
+    });
 
-            marker.addEventListener('markerLost', () => {
-                iframe.style.display = 'none'; // Скрыть iframe
-                button.style.display = 'none'; // Скрыть кнопку
-            });
+    marker.addEventListener('markerLost', () => {
+        iframe.style.display = 'none'; // Скрыть iframe
+        button.style.display = 'none'; // Скрыть кнопку
+    });
 
-            button.addEventListener('click', () => {
-                iframe.style.display = 'block'; // Показать iframe с YouTube видео
-                button.style.display = 'none'; // Скрыть кнопку воспроизведения
+    button.addEventListener('click', () => {
+        const markerPos = marker.object3D.getWorldPosition(); // Получаем позицию маркера
+        iframe.style.display = 'block'; // Показать iframe
+        iframe.style.top = window.innerHeight / 2 + markerPos.y + 'px'; // Обновляем позицию по вертикали
+        iframe.style.left = window.innerWidth / 2 + markerPos.x + 'px'; // Обновляем позицию по горизонтали
+        button.style.display = 'none'; // Скрыть кнопку
+    });
+});
+
             });
         });
     </script>
