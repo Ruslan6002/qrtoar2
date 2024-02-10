@@ -1,81 +1,106 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-  <script src="https://jeromeetienne.github.io/AR.js/aframe/build/aframe-ar.js"></script>
-  <!-- YouTube IFrame Player API -->
-  <script src="https://www.youtube.com/iframe_api?enablejsapi=1&key=AIzaSyD-lhhzP67JRJcvDwIO1z8bXlHdAbmOM44"></script>
-</head>
-<body style='margin : 0px; overflow: hidden;'>
-  <a-scene embedded arjs>
-    <a-marker preset="hiro">
-      <!-- Embed the YouTube video inside the a-entity -->
-      <a-entity
-        geometry="primitive: plane; height: 0.56; width: 1"
-        material="shader: flat"
-        position="0 0 0"
-        rotation="-90 0 0"
-        scale="2 2 2"
-        id="player">
-        <!-- Here we will put the YouTube iframe later -->
-      </a-entity>
-      <a-entity
-        geometry="primitive: box; height: 0.2; width: 0.2; depth: 0.2"
-        material="color: green"
-        position="0 0.2 0"
-        id="button"
-      ></a-entity>
-    </a-marker>
-    <a-entity camera></a-entity>
-  </a-scene>
-
-  <script>
-    // YouTube Player
-    var player;
-    
-    // This function creates an <iframe> (and YouTube player) after the API code downloads.
-    function onYouTubeIframeAPIReady() {
-      var urlParams = new URLSearchParams(window.location.search);
-      var videoUrl = urlParams.get('videoId');
-      if (!videoUrl) {
-        console.error('No videoId parameter provided.');
-        return;
-      }
-
-      var videoId = getVideoIdFromUrl(videoUrl);
-      if (!videoId) {
-        console.error('Invalid video URL provided.');
-        return;
-      }
-
-      player = new YT.Player('player', {
-        height: '360',
-        width: '640',
-        videoId: videoId,
-        playerVars: {
-          'controls': 0,
-          'playsinline': 1
+    <meta charset="UTF-8">
+    <title>WebAR Video Example</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/3.3.0/aframe/build/aframe-ar.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        #start-button { 
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            z-index: 999;
+            background-color: #808080; /* серый фон */
+            border: none;
+            border-radius: 50%; /* делаем кнопку круглой */
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
         }
-      });
+        /* Стилизация треугольника внутри кнопки "Воспроизведение" */
+        #start-button:before {
+            content: "";
+            display: block;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width:  10px 0 10px 15px; /* размеры триугольника */
+            border-color: transparent transparent transparent white; /* цвет треугольника */
+            position: absolute; /* Абсолютное позиционирование */
+            left: 52%;
+            top: 50%;
+            transform: translate(-50%, -50%); /* Смещение треугольника в центр */
+        }
+    </style>
+</head>
+<body>
+    <a-scene embedded arjs='sourceType: webcam;'>
+        <a-marker preset="hiro" id="hiro-marker">
+            <a-entity
+                geometry="primitive: plane; width: 2; height: 1.125;"
+                material="shader: flat"
+                position="0 0 0"
+                rotation="-90 0 0"
+                id="player"
+            ></a-entity>
+        </a-marker>
+        <a-entity camera></a-entity>
+    </a-scene>
+    <button id="start-button"></button>
 
-      // Event listener for the button click
-      document.getElementById('button').addEventListener('click', function() {
-        player.playVideo();
-      });
-    }
+    <script>
+        var player;
 
-    // Function to get the YouTube video ID from the URL
-    function getVideoIdFromUrl(url) {
-      if (url.includes('youtube.com')) {
-        var urlParams = new URL(url);
-        return urlParams.searchParams.get('v');
-      } else if (url.includes('youtu.be')) {
-        var videoId = url.split('/').pop();
-        return videoId;
-      } else {
-        return null;
-      }
-    }
-  </script>
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: '315',
+                width: '560',
+                videoId: 'ouMA3Cxch-4', // Замените VIDEO_ID на ID вашего YouTube видео
+                playerVars: {
+                    'controls': 0,
+                    'playsinline': 1
+                },
+                events: {
+                    'onReady': onPlayerReady
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+            const button = document.getElementById('start-button');
+            button.style.display = 'block';
+            button.addEventListener('click', function() {
+                player.playVideo();
+                button.style.display = 'none';
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const marker = document.querySelector('#hiro-marker');
+            let videoEl;
+
+            marker.addEventListener('markerFound', () => {
+                if (!player) {
+                    player = new YT.Player('player', {});
+                }
+                player.playVideo();
+            });
+
+            marker.addEventListener('markerLost', () => {
+                if (player && player.getPlayerState() === 1) {
+                    player.pauseVideo();
+                }
+            });
+        });
+    </script>
 </body>
 </html>
