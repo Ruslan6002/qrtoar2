@@ -67,12 +67,14 @@
                 button.style.display = 'block';
             });
 
-            marker.addEventListener('markerLost', () => {
-                if (player && player.getPlayerState() === 1) {
-                    player.pauseVideo();
-                }
-                button.style.display = 'none';
+           marker.addEventListener('markerFound', () => {
+                button.style.display = 'block';
+                var markerPosition = marker.object3D.position;
+                player.object3D.position.set(markerPosition.x, markerPosition.y, markerPosition.z); // задаем позицию плееру равную позиции маркера
+                player.object3D.rotation.set(marker.object3D.rotation.x, marker.object3D.rotation.y, marker.object3D.rotation.z); // задаем поворот плееру равный повороту маркера
+                player.object3D.scale.set(marker.object3D.scale.x, marker.object3D.scale.y, marker.object3D.scale.z); // задаем масштаб плееру равный масштабу маркера
             });
+
 
             button.addEventListener('click', () => {
                 if (!player) {
