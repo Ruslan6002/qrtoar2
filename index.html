@@ -1,37 +1,94 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-  <script src="https://jeromeetienne.github.io/AR.js/aframe/build/aframe-ar.js"></script>
-  <title>AR Video Player</title>
+    <meta charset="UTF-8">
+    <title>WebAR Video Example</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/3.3.0/aframe/build/aframe-ar.js"></script>
+     <style>
+        body { margin: 0; overflow: hidden; }
+        #start-button { 
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            z-index: 999;
+            background-color: #808080; /* серый фон */
+            border: none;
+            border-radius: 50%; /* делаем кнопку круглой */
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        /* Стилизация треугольника внутри кнопки "Воспроизведение" */
+        #start-button:before {
+            content: "";
+            display: block;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width:  10px 0 10px 15px; /* размеры триугольника */
+            border-color: transparent transparent transparent white; /* цвет треугольника */
+position: absolute; /* Абсолютное позиционирование */
+    left: 52%;
+    top: 50%;
+    transform: translate(-50%, -50%); /* Смещение треугольника в центр */
+        }
+    </style>
 </head>
-<body style='margin : 0px; overflow: hidden;'>
-  <a-scene embedded arjs>
-    <a-assets>
-      <!-- Создайте видео-элемент тут и укажите источник из Google Drive -->
-      <video id="video" autoplay loop crossorigin="anonymous">
-        <!-- Ссылка на файл видео с Google Drive -->
-      </video>
-    </a-assets>
+<body>
+    <a-scene embedded arjs='sourceType: webcam;'>
+        <a-marker preset="hiro" id="hiro-marker">
+            <!-- Пустой атрибут src, вместо этого URL будет задан ниже -->
+            <a-video id="video" width="1.6" height="0.9" position="0 0 0" rotation="-90 0 0" muted playsinline></a-video>
+        </a-marker>
+        <a-entity camera></a-entity>
+    </a-scene>
+    <button id="start-button"></button>
 
-    <a-marker preset="hiro">
-      <!-- Вставьте видео в a-videosphere или a-video -->
-      <a-video src="#video" width="1.78" height="1" position="0 0 0" rotation="-90 0 0"></a-video>
-    </a-marker>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Извлечение параметра 'videoSrc' из URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const videoSrc = urlParams.get('videoSrc');
+            
+            if (videoSrc) {
+                // Загрузите видео-источник из параметра URL
+                const video = document.getElementById('video');
+                video.setAttribute('src', decodeURIComponent(videoSrc));
+            }
 
-    <a-entity camera></a-entity>
-  </a-scene>
+            const marker = document.querySelector('#hiro-marker');
+            const button = document.getElementById('start-button');
+            let videoEl;
 
-  <script>
-      // Извлечение параметра 'videoSrc' из URL
-      const urlParams = new URLSearchParams(window.location.search);
-      const videoSrc = urlParams.get('videoSrc');
-      
-      if (videoSrc) {
-        // Загрузите видео-источник из параметра URL
-        const video = document.getElementById('video');
-        video.setAttribute('src', decodeURIComponent(videoSrc));
-      }
-  </script>
+            marker.addEventListener('markerFound', () => {
+                button.style.display = 'block'; // Показать кнопку, когда маркер найден
+            });
+
+            marker.addEventListener('markerLost', () => {
+                // Остановить видео, когда маркер потерян
+                if (videoEl && !videoEl.paused) {
+                    videoEl.pause();
+                }
+                button.style.display = 'none'; // Скрыть кнопку в случае, если маркер потерян
+            });
+
+            button.addEventListener('click', () => {
+                if (!videoEl) {
+                    videoEl = document.querySelector('a-video').components.material.material.map.image;
+                }
+                if (videoEl.paused) {
+                    videoEl.play(); // Воспроизвести видео
+                    button.style.display = 'none'; // Скрыть кнопку после начала воспроизведения видео
+                }
+            });
+        });
+    </script>
 </body>
 </html>
