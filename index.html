@@ -37,70 +37,61 @@
             top: 50%;
             transform: translate(-50%, -50%);
         }
+
+        #player {
+            display: none; // Скрыть видео до обнаружения маркера
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; // Поместить плеер под маркером
+        }
     </style>
 </head>
 <body>
     <button id="start-button"></button>
+    <!-- Загрузка видео при загрузке страницы -->
+    <div id="player" style="z-index: -1;">
+        <iframe id="ytplayer" type="text/html" width="640" height="360"
+          src="https://www.youtube.com/embed/Uh05DkvXbLk?autoplay=1&controls=0&rel=0&showinfo=0"
+          frameborder="0"></iframe>
+    </div>
     <a-scene embedded arjs='sourceType: webcam;'>
         <a-marker preset="hiro" id="hiro-marker">
-            <a-entity id="player"></a-entity>
+            <a-entity id="video-container" position="0 0 0" scale="4 4 4">
+                <a-video src="#ytplayer" width="16" height="9"></a-video>
+            </a-entity>
         </a-marker>
         <a-entity camera></a-entity>
     </a-scene>
 
-   <script>
-    var player;
-    var videoPlayed = false;
-    const button = document.getElementById('start-button');
+    <script>
+        var videoPlayed = false;
+        const button = document.getElementById('start-button');
+        const video = document.getElementById('player');
+        const player = document.getElementById('ytplayer');
 
-    function onPlayerReady(event) {
-        event.target.playVideo(); // Автоматически начать воспроизведение при готовности плеера
-    }
+        document.addEventListener('DOMContentLoaded', () => {
+            button.style.display = 'none'; // Скрыть кнопку до обнаружения маркера
 
-    function onPlayerStateChange(event) {
-        if (event.data === YT.PlayerState.ENDED) {
-            videoPlayed = false;
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        button.style.display = 'none'; // Скрыть кнопку до обнаружения маркера
-
-        button.addEventListener('click', () => {
-            if (!videoPlayed) {
-                if (!player) {
-                    player = new YT.Player('player', {
-                        height: '360',
-                        width: '640',
-                        videoId: 'Uh05DkvXbLk', // Замените 'VIDEO_ID' на реальный идентификатор видео
-                        playerVars: {
-                            'autoplay': 1,
-                            'controls': 0,
-                            'rel': 0,
-                            'showinfo': 0
-                        },
-                        events: {
-                            'onReady': onPlayerReady,
-                            'onStateChange': onPlayerStateChange
-                        }
-                    });
+            // Обработчик для обнаружения маркера
+            const marker = document.querySelector('#hiro-marker');
+            marker.addEventListener('markerFound', () => {
+                video.style.display = 'block'; // Показать видео при обнаружении маркера
+                if(videoPlayed) {
+                    player.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
                 }
+            });
 
-                player.getIframe().style.display = 'block';
-                videoPlayed = true;
-                button.style.display = 'none';
-            }
+            button.addEventListener('click', () => {
+                if (!videoPlayed) {
+                    videoPlayed = true;
+                    player.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+                    button.style.display = 'none';
+                }
+            });
         });
-
-        // Обработчик для обнаружения маркера
-        const marker = document.querySelector('#hiro-marker');
-        marker.addEventListener('markerFound', () => {
-            if(videoPlayed && player && player.getPlayerState() === 1) {
-                player.pauseVideo();
-            }
-            button.style.display = 'block'; // Показать кнопку при обнаружении маркера
-        });
-    });
-</script>
+    </script>
 </body>
 </html>
