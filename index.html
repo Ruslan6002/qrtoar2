@@ -20,6 +20,12 @@
         id="player">
         <!-- Here we will put the YouTube iframe later -->
       </a-entity>
+      <a-entity
+        geometry="primitive: box; height: 0.2; width: 0.2; depth: 0.2"
+        material="color: green"
+        position="0 0.2 0"
+        onClick="playVideo()"  <!-- Call playVideo() function when clicked -->
+      ></a-entity>
     </a-marker>
     <a-entity camera></a-entity>
   </a-scene>
@@ -27,6 +33,14 @@
   <script>
     // YouTube Player
     var player;
+    
+    function playVideo() {
+      if (player) {
+        player.playVideo();
+      } else {
+        console.error('YT player not ready');
+      }
+    }
 
     // This function creates an <iframe> (and YouTube player) after the API code downloads.
     function onYouTubeIframeAPIReady() {
@@ -40,18 +54,12 @@
         height: '360',
         width: '640',
         videoId: videoId,
-        events: {
-          'onReady': onPlayerReady
+        playerVars: {
+          'controls': 0,
+          'playsinline': 1
         }
       });
-    }
-
-    // The API will call this function when the video player is ready.
-    function onPlayerReady(event) {
-      // Play video when ready
-      event.target.playVideo();
     }
   </script>
 </body>
 </html>
-
