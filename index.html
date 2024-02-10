@@ -6,86 +6,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/3.3.0/aframe/build/aframe-ar.js"></script>
-    <style>
-        body { margin: 0; overflow: hidden; }
-        #start-button { 
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 999;
-            background-color: #808080; 
-            border: none;
-            border-radius: 50%; 
-            width: 50px;
-            height: 50px;
-            cursor: pointer;
-            display: none;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #start-button:before {
-            content: "";
-            border-style: solid;
-            border-width:  10px 0 10px 15px;
-            border-color: transparent transparent transparent white;
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        #youtube-iframe {
-            display: none;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 10;
-            border: 0;
-        }
-    </style>
 </head>
 <body>
     <a-scene embedded arjs='sourceType: webcam; debugUIEnabled: false;'>
-        <a-marker preset="hiro" id="hiro-marker">
-            <!-- Место для элемента a-entity или другого, который вы можете использовать как контейнер для видео -->
+        <a-assets>
+            <a-asset-item id="video-src" src="https://www.youtube.com/embed/Hlwg_LgCPuU?autoplay=1"></a-asset-item>
+        </a-assets>
+
+        <a-marker preset="hiro">
+            <a-entity
+                scale="5 5 5"
+                position="0 0 0"
+                geometry="primitive: plane"
+                material="shader: flat; src: #video-src"
+            ></a-entity>
         </a-marker>
+        
         <a-entity camera></a-entity>
     </a-scene>
-    <button id="start-button">Play Video</button>
-    
-    <a-entity id="video-container" position="0 0 -2">
-        <iframe id="youtube-iframe" width="560" height="315" src="" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
-        </iframe>
-    </a-entity>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const marker = document.querySelector('#hiro-marker');
-            const container = document.querySelector('#video-container');
-            const button = document.getElementById('start-button');
-            
-            container.setAttribute('visible', false);
-
-            marker.addEventListener('markerFound', () => {
-                container.setAttribute('visible', true);
-                button.style.display = 'none';
-                document.getElementById('youtube-iframe').src = "https://www.youtube.com/embed/jZjm-XBgF1M?autoplay=1&playsinline=1";
-            });
-
-            marker.addEventListener('markerLost', () => {
-                container.setAttribute('visible', false);
-                button.style.display = 'none';
-            });
-
-            button.addEventListener('click', () => {
-                container.setAttribute('visible', true);
-                button.style.display = 'none';
-                document.getElementById('youtube-iframe').src = "https://www.youtube.com/embed/jZjm-XBgF1M?autoplay=1&playsinline=1";
-            });
-        });
-    </script>
 </body>
 </html>
