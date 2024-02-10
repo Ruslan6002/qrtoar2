@@ -56,41 +56,39 @@
     </a-scene>
     <button id="start-button">Play Video</button>
     <!-- Встроенный YouTube плеер в iframe -->
+    <a-entity id="video-container" position="0 0 -2">
     <iframe id="youtube-iframe" width="560" height="315"
             src="https://www.youtube.com/embed/jZjm-XBgF1M?autoplay=1&playsinline=1"
             allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
     </iframe>
+    </a-entity>
+
 
     <script>
-       document.addEventListener('DOMContentLoaded', () => {
+   document.addEventListener('DOMContentLoaded', () => {
     const marker = document.querySelector('#hiro-marker');
+    const container = document.querySelector('#video-container');
     const button = document.getElementById('start-button');
-    const iframe = document.getElementById('youtube-iframe');
+    
+    container.setAttribute('visible', false); // Скрыть контейнер видео
 
     marker.addEventListener('markerFound', () => {
-        const markerPos = marker.object3D.getWorldPosition(); // Получаем позицию маркера
-        iframe.style.display = 'block'; // Показать iframe
-        iframe.style.top = window.innerHeight / 2 + markerPos.y + 'px'; // Обновляем позицию по вертикали
-        iframe.style.left = window.innerWidth / 2 + markerPos.x + 'px'; // Обновляем позицию по горизонтали
+        container.setAttribute('visible', true); // Показать контейнер видео
         button.style.display = 'none'; // Скрыть кнопку
     });
 
     marker.addEventListener('markerLost', () => {
-        iframe.style.display = 'none'; // Скрыть iframe
+        container.setAttribute('visible', false); // Скрыть контейнер видео
         button.style.display = 'none'; // Скрыть кнопку
     });
 
     button.addEventListener('click', () => {
-        const markerPos = marker.object3D.getWorldPosition(); // Получаем позицию маркера
-        iframe.style.display = 'block'; // Показать iframe
-        iframe.style.top = window.innerHeight / 2 + markerPos.y + 'px'; // Обновляем позицию по вертикали
-        iframe.style.left = window.innerWidth / 2 + markerPos.x + 'px'; // Обновляем позицию по горизонтали
+        container.setAttribute('visible', true); // Показать контейнер видео
         button.style.display = 'none'; // Скрыть кнопку
     });
 });
 
-            });
-        });
+    
     </script>
 </body>
 </html>
