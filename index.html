@@ -14,9 +14,9 @@
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: 999;
-            background-color: #808080; /* серый фон */
+            background-color: #808080; 
             border: none;
-            border-radius: 50%; /* делаем кнопку круглой */
+            border-radius: 50%; 
             width: 50px;
             height: 50px;
             cursor: pointer;
@@ -24,7 +24,7 @@
             align-items: center;
             justify-content: center;
         }
-        /* Стилизация треугольника внутри кнопки "Воспроизведение" */
+
         #start-button:before {
             content: "";
             border-style: solid;
@@ -35,7 +35,7 @@
             top: 50%;
             transform: translate(-50%, -50%);
         }
-        /* Скрыть изначально фрейм YouTube */
+
         #youtube-iframe {
             display: none;
             position: absolute;
@@ -55,40 +55,37 @@
         <a-entity camera></a-entity>
     </a-scene>
     <button id="start-button">Play Video</button>
-    <!-- Встроенный YouTube плеер в iframe -->
+    
     <a-entity id="video-container" position="0 0 -2">
-    <iframe id="youtube-iframe" width="560" height="315"
-            src="https://www.youtube.com/embed/jZjm-XBgF1M?autoplay=1&playsinline=1"
-            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
-    </iframe>
+        <iframe id="youtube-iframe" width="560" height="315" src="" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+        </iframe>
     </a-entity>
 
-
     <script>
-   document.addEventListener('DOMContentLoaded', () => {
-    const marker = document.querySelector('#hiro-marker');
-    const container = document.querySelector('#video-container');
-    const button = document.getElementById('start-button');
-    
-    container.setAttribute('visible', false); // Скрыть контейнер видео
+        document.addEventListener('DOMContentLoaded', () => {
+            const marker = document.querySelector('#hiro-marker');
+            const container = document.querySelector('#video-container');
+            const button = document.getElementById('start-button');
+            
+            container.setAttribute('visible', false);
 
-    marker.addEventListener('markerFound', () => {
-        container.setAttribute('visible', true); // Показать контейнер видео
-        button.style.display = 'none'; // Скрыть кнопку
-    });
+            marker.addEventListener('markerFound', () => {
+                container.setAttribute('visible', true);
+                button.style.display = 'none';
+                document.getElementById('youtube-iframe').src = "https://www.youtube.com/embed/jZjm-XBgF1M?autoplay=1&playsinline=1";
+            });
 
-    marker.addEventListener('markerLost', () => {
-        container.setAttribute('visible', false); // Скрыть контейнер видео
-        button.style.display = 'none'; // Скрыть кнопку
-    });
+            marker.addEventListener('markerLost', () => {
+                container.setAttribute('visible', false);
+                button.style.display = 'none';
+            });
 
-    button.addEventListener('click', () => {
-        container.setAttribute('visible', true); // Показать контейнер видео
-        button.style.display = 'none'; // Скрыть кнопку
-    });
-});
-
-    
+            button.addEventListener('click', () => {
+                container.setAttribute('visible', true);
+                button.style.display = 'none';
+                document.getElementById('youtube-iframe').src = "https://www.youtube.com/embed/jZjm-XBgF1M?autoplay=1&playsinline=1";
+            });
+        });
     </script>
 </body>
 </html>
