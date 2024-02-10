@@ -2,66 +2,102 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>WebAR Video Example</title>
+    <title>WebAR YouTube Video Example</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <script src="https://www.youtube.com/iframe_api"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/3.3.0/aframe/build/aframe-ar.js"></script>
+    <script src="https://www.youtube.com/iframe_api?key=AIzaSyD-lhhzP67JRJcvDwIO1z8bXlHdAbmOM44" SameSite="None; Secure"></script>
     <style>
         body { margin: 0; overflow: hidden; }
+        #start-button { 
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            z-index: 999;
+            background-color: #808080;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+        }
+        #start-button:before {
+            content: "";
+            display: block;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width:  10px 0 10px 15px;
+            border-color: transparent transparent transparent white;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
     </style>
 </head>
 <body>
     <a-scene embedded arjs='sourceType: webcam;'>
         <a-marker preset="hiro" id="hiro-marker">
             <a-entity
-                geometry="primitive: plane; width: 2; height: 1.125;"
-                material="shader: flat"
-                position="0 0 0"
-                rotation="-90 0 0"
                 id="player"
+                visible="false"
             ></a-entity>
         </a-marker>
         <a-entity camera></a-entity>
     </a-scene>
+    <button id="start-button"></button>
 
     <script>
         var player;
 
         function onYouTubeIframeAPIReady() {
-            player = new YT.Player('player', {});
+            // Ничего не нужно делать здесь
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             const marker = document.querySelector('#hiro-marker');
+            const button = document.getElementById('start-button');
+
+            marker.addEventListener('markerFound', () => {
+                button.style.display = 'block';
+            });
 
             marker.addEventListener('markerLost', () => {
                 if (player && player.getPlayerState() === 1) {
                     player.pauseVideo();
                 }
-                // Скрываем плеер
-                player.getIframe().parentElement.style.display = 'none';
+                button.style.display = 'none';
             });
 
-            marker.addEventListener('markerFound', () => {
+            button.addEventListener('click', () => {
                 if (!player) {
                     player = new YT.Player('player', {
                         height: '315',
                         width: '560',
-                        videoId: 'lS5h-im8j-g', // Замените VIDEO_ID на ID вашего YouTube видео
+                        videoId: '5waVHnnu_d4', // Замените VIDEO_ID на ID вашего YouTube видео
                         playerVars: {
                             'controls': 0,
-                            'playsinline': 1
+                            'playsinline': 1,
+                            'showinfo': 0,
+                            'autohide': 1
                         },
                         events: {
                             'onReady': onPlayerReady
                         }
                     });
                 }
+                player.getIframe().style.display = 'block';
+                player.playVideo();
+                button.style.display = 'none';
             });
 
             function onPlayerReady(event) {
-                player.playVideo();
+                event.target.playVideo();
             }
         });
     </script>
