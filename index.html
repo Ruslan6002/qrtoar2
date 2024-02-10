@@ -27,6 +27,8 @@
         <a-entity camera></a-entity>
     </a-scene>
 
+    <button id="playButton">Play Video</button>
+
     <script>
         var video = document.getElementById('video');
         var videoSrc = 'https://www.youtube.com/embed/Hlwg_LgCPuU?autoplay=1&origin=https://ruslan6002.github.io';
@@ -36,9 +38,9 @@
             video.play();
         };
 
-        document.addEventListener('click', function() {
-           playVideo();
-        });
+        // Добавляем кнопку и обработчик события для запуска видео
+        var playButton = document.getElementById('playButton');
+        playButton.addEventListener('click', playVideo);
     </script>
 </body>
 </html>
