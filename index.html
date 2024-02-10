@@ -9,8 +9,7 @@
     <script src="https://www.youtube.com/iframe_api?key=AIzaSyD-lhhzP67JRJcvDwIO1z8bXlHdAbmOM44"></script>
     <style>
         body { margin: 0; overflow: hidden; }
-
-        #start-button {
+        #start-button, #stop-button { 
             position: absolute;
             top: 50%;
             left: 50%;
@@ -22,9 +21,10 @@
             width: 50px;
             height: 50px;
             cursor: pointer;
-            display: none; // Начать с изначальной невидимости
+            align-items: center;
+            justify-content: center;
         }
-        #start-button:before {
+        #start-button:before, #stop-button:before {
             content: "";
             display: block;
             width: 0;
@@ -51,8 +51,9 @@
 </head>
 <body>
     <button id="start-button"></button>
+    <button id="stop-button"></button>
     <!-- Загрузка видео при загрузке страницы -->
-    <div id="player">
+    <div id="player" style="z-index: -1;">
         <iframe id="ytplayer" type="text/html" width="640" height="360"
           src="https://www.youtube.com/embed/Uh05DkvXbLk?autoplay=1&controls=0&rel=0&showinfo=0"
           frameborder="0"></iframe>
@@ -68,43 +69,48 @@
 
     <script>
         var videoPlayed = false;
-        var videoStopped = false;
-        const button = document.getElementById('start-button');
+        const startButton = document.getElementById('start-button');
+        const stopButton = document.getElementById('stop-button');
         const video = document.getElementById('player');
         const player = document.getElementById('ytplayer');
-        const marker = document.querySelector('#hiro-marker');
-
-        function startVideo() {
-            video.style.display = 'block';
-            if (!videoPlayed) {
-                videoPlayed = true;
-                player.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-            }
-        }
-
-        function stopVideo() {
-            if (videoPlayed) {
-                videoStopped = true;
-                player.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
-            }
-        }
 
         document.addEventListener('DOMContentLoaded', () => {
+            startButton.style.display = 'none'; // Скрыть кнопку "Старт" до обнаружения маркера
+            stopButton.style.display = 'none'; // Скрыть кнопку "Стоп" до обнаружения маркера
+
+            // Обработчики для обнаружения и потери маркера
+            const marker = document.querySelector('#hiro-marker');
             marker.addEventListener('markerFound', () => {
-                startVideo();
-                button.style.display = 'block';
+                video.style.display = 'block'; // Показать видео при обнаружении маркера
+                startButton.style.display = 'block'; // Показать кнопку "Старт"
+                stopButton.style.display = 'block'; // Показать кнопку "Стоп"
+                if (videoPlayed) {
+                    player.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+                }
             });
-
             marker.addEventListener('markerLost', () => {
-                stopVideo();
-                button.style.display = 'none';
-                video.style.display = 'none';
+                video.style.display = 'none'; // Скрыть видео при потере маркера
+                stopVideo(); // Остановить видео при потере маркера
             });
 
-            button.addEventListener('click', () => {
-                startVideo(); // Возобновить видео при нажатии на кнопку
+            startButton.addEventListener('click', () => {
+                if (!videoPlayed) {
+                    videoPlayed = true;
+                    player.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+                    startButton.style.display = 'none';
+                }
+            });
+
+            stopButton.addEventListener('click', () => {
+                stopVideo();
             });
         });
+
+        // Функция для остановки видео
+        function stopVideo() {
+            videoPlayed = false;
+            player.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+        }
     </script>
 </body>
 </html>
