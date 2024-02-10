@@ -63,29 +63,30 @@
             const marker = document.querySelector('#hiro-marker');
             const button = document.getElementById('start-button');
 
-            marker.addEventListener('markerFound', () => {
-                if (!videoPlayed) {
-                    if (!player) {
-                        player = new YT.Player('player', {
-                            height: '315',
-                            width: '560',
-                            videoId: '5waVHnnu_d4', // Замените VIDEO_ID на ID вашего YouTube видео
-                            playerVars: {
-                                'controls': 0,
-                                'playsinline': 1,
-                                'showinfo': 0,
-                                'autohide': 1
-                            },
-                            events: {
-                                'onReady': onPlayerReady
-                            }
-                        });
-                    }
-                    player.getIframe().style.display = 'block';
-                    button.style.display = 'none';
-                    videoPlayed = true;
+marker.addEventListener('markerFound', () => {
+    if (!videoPlayed) {
+        if (!player) {
+            player = new YT.Player('player', {
+                height: '315',
+                width: '560',
+                videoId: '5waVHnnu_d4', // Замените VIDEO_ID на ID вашего YouTube видео
+                playerVars: {
+                    'controls': 0,
+                    'playsinline': 1,
+                    'showinfo': 0,
+                    'autohide': 1
+                },
+                events: {
+                    'onReady': onPlayerReady
                 }
             });
+        }
+        player.getIframe().style.display = 'block';
+        videoPlayed = true;
+        startButton.style.display = 'none';
+    }
+});
+
 
             marker.addEventListener('markerLost', () => {
                 if (player && player.getPlayerState() === 1) {
@@ -99,13 +100,6 @@
                 event.target.playVideo(); // Начать воспроизведение видео
             }
 
-            // Остановка видео при потере маркера
-            marker.addEventListener('markerLost', () => {
-                if (player && player.getPlayerState() === 1) {
-                    player.pauseVideo();
-                }
-                button.style.display = 'block';
-            });
         });
     </script>
 </body>
