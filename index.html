@@ -1,66 +1,57 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>WebAR YouTube Video Example</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <script src="https://raw.githack.com/AR-js-org/AR.js/3.3.0/aframe/build/aframe-ar.js"></script>
-    <script src="https://www.youtube.com/iframe_api"></script>
+  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+  <script src="https://jeromeetienne.github.io/AR.js/aframe/build/aframe-ar.js"></script>
+  <!-- YouTube IFrame Player API -->
+  <script src="https://www.youtube.com/iframe_api?enablejsapi=1&key=AIzaSyD-lhhzP67JRJcvDwIO1z8bXlHdAbmOM44"></script>
+  <title>AR Video Player</title>
 </head>
-<body>
-    <a-scene embedded arjs='sourceType: webcam; debugUIEnabled: false;'>
-        <a-assets>
-            <video id="player" crossorigin="anonymous" playsinline webkit-playsinline></video>
-        </a-assets>
+<body style='margin : 0px; overflow: hidden;'>
+  <a-scene embedded arjs>
+    <a-marker preset="hiro">
+      <!-- Embed the YouTube video inside the a-entity -->
+      <a-entity
+        geometry="primitive: plane; height: 0.56; width: 1"
+        material="shader: flat"
+        position="0 0 0"
+        rotation="-90 0 0"
+        scale="2 2 2"
+        id="player">
+        <!-- Here we will put the YouTube iframe later -->
+      </a-entity>
+    </a-marker>
+    <a-entity camera></a-entity>
+  </a-scene>
 
-        <!-- Маркер hiro -->
-        <a-marker preset="hiro">
-            <a-video src="#player" width="16" height="9" rotation="-90 0 0"></a-video>
-        </a-marker>
+  <script>
+    // YouTube Player
+    var player;
 
-        <a-entity camera></a-entity>
-    </a-scene>
-
-    <script>
-        var player;
-
-        function onYouTubeIframeAPIReady() {
-            // Создаем плеер с ID элемента "player" и ID видео
-            player = new YT.Player('player', {
-                height: '315',
-                width: '560',
-                videoId: 'Hlwg_LgCPuU',
-                events: {
-                    'onReady': onPlayerReady
-                }
-            });
+    // This function creates an <iframe> (and YouTube player) after the API code downloads.
+    function onYouTubeIframeAPIReady() {
+      var urlParams = new URLSearchParams(window.location.search);
+      var videoId = urlParams.get('videoId');
+      if (!videoId) {
+        console.error('No videoId parameter provided.');
+        return;
+      }
+      player = new YT.Player('player', {
+        height: '360',
+        width: '640',
+        videoId: videoId,
+        events: {
+          'onReady': onPlayerReady
         }
+      });
+    }
 
-        function onPlayerReady(event) {
-            event.target.playVideo();
-        }
-
-        // Следование плеера за меткой hiro
-        AFRAME.registerComponent('follow-marker', {
-            tick: function() {
-                var marker = document.querySelector('a-marker');
-                var markerPosition = marker.object3D.position;
-                this.el.object3D.position.set(markerPosition.x, markerPosition.y, markerPosition.z);
-            }
-        });
-
-        var arScene = document.querySelector('a-scene');
-        arScene.addEventListener('loaded', function() {
-            onYouTubeIframeAPIReady();
-
-            var videoElement = document.getElementById('player');
-            videoElement.play();
-
-            // Привязываем плеер к метке hiro
-            var videoPlayer = document.querySelector('a-video');
-            videoPlayer.setAttribute('follow-marker', '');
-        });
-    </script>
+    // The API will call this function when the video player is ready.
+    function onPlayerReady(event) {
+      // Play video when ready
+      event.target.playVideo();
+    }
+  </script>
 </body>
 </html>
+
