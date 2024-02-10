@@ -14,7 +14,6 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            display: none;
             z-index: 999;
             background-color: #808080;
             border: none;
@@ -41,66 +40,43 @@
     </style>
 </head>
 <body>
+    <button id="start-button"></button>
     <a-scene embedded arjs='sourceType: webcam;'>
         <a-marker preset="hiro" id="hiro-marker">
-            <a-entity
-                id="player"
-            ></a-entity>
+            <a-entity id="player"></a-entity>
         </a-marker>
         <a-entity camera></a-entity>
     </a-scene>
-    <button id="start-button"></button>
 
     <script>
-        var player;
-        var videoPlayed = false;
+      var player;
+      var videoPlayed = false;
 
-        function onYouTubeIframeAPIReady() {
-            // Ничего не нужно делать здесь
-        }
+      document.addEventListener('DOMContentLoaded', () => {
+          const button = document.getElementById('start-button');
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const marker = document.querySelector('#hiro-marker');
-            const button = document.getElementById('start-button');
+          button.style.display = 'block'; // Показать кнопку до обнаружения маркера
 
-marker.addEventListener('markerFound', () => {
-    if (!videoPlayed) {
-        if (!player) {
-            player = new YT.Player('player', {
-                height: '315',
-                width: '560',
-                videoId: '5waVHnnu_d4', // Замените VIDEO_ID на ID вашего YouTube видео
-                playerVars: {
-                    'controls': 0,
-                    'playsinline': 1,
-                    'showinfo': 0,
-                    'autohide': 1
-                },
-                events: {
-                    'onReady': onPlayerReady
-                }
-            });
-        }
-        player.getIframe().style.display = 'block';
-        videoPlayed = true;
-        button.style.display = 'none';
-    }
-});
+          button.addEventListener('click', () => {
+              if (!videoPlayed) {
+                  if (!player) {
+                      player = new YT.Player('player', { ... });
+                  }
+                  player.getIframe().style.display = 'block';
+                  videoPlayed = true;
+                  button.style.display = 'none';
+              }
+          });
 
-
-            marker.addEventListener('markerLost', () => {
-                if (player && player.getPlayerState() === 1) {
-                    player.pauseVideo();
-                }
-                button.style.display = 'none';
-            });
-
-            function onPlayerReady(event) {
-                updatePlayerPosition(marker); // Установка начальной позиции плеера
-                event.target.playVideo(); // Начать воспроизведение видео
-            }
-
-        });
+          // Обработчик для обнаружения маркера
+          const marker = document.querySelector('#hiro-marker');
+          marker.addEventListener('markerFound', () => {
+              if(!videoPlayed && player && player.getPlayerState() === 1) {
+                  player.pauseVideo();
+              }
+              button.style.display = 'block';
+          });
+      });
     </script>
 </body>
 </html>
