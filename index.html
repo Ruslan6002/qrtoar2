@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/3.3.0/aframe/build/aframe-ar.js"></script>
-    <script src="https://www.youtube.com/iframe_api?key=AIzaSyD-lhhzP67JRJcvDwIO1z8bXlHdAbmOM44" SameSite="None; Secure"></script>
+    <script src="https://www.youtube.com/iframe_api?key=AIzaSyD-lhhzP67JRJcvDwIO1z8bXlHdAbmOM44"></script>
     <style>
         body { margin: 0; overflow: hidden; }
         #start-button { 
@@ -45,7 +45,6 @@
         <a-marker preset="hiro" id="hiro-marker">
             <a-entity
                 id="player"
-                visible="false"
             ></a-entity>
         </a-marker>
         <a-entity camera></a-entity>
@@ -54,6 +53,7 @@
 
     <script>
         var player;
+        var videoPlayed = false;
 
         function onYouTubeIframeAPIReady() {
             // Ничего не нужно делать здесь
@@ -64,7 +64,27 @@
             const button = document.getElementById('start-button');
 
             marker.addEventListener('markerFound', () => {
-                button.style.display = 'block';
+                if (!videoPlayed) {
+                    if (!player) {
+                        player = new YT.Player('player', {
+                            height: '315',
+                            width: '560',
+                            videoId: '5waVHnnu_d4', // Замените VIDEO_ID на ID вашего YouTube видео
+                            playerVars: {
+                                'controls': 0,
+                                'playsinline': 1,
+                                'showinfo': 0,
+                                'autohide': 1
+                            },
+                            events: {
+                                'onReady': onPlayerReady
+                            }
+                        });
+                    }
+                    player.getIframe().style.display = 'block';
+                    button.style.display = 'none';
+                    videoPlayed = true;
+                }
             });
 
             marker.addEventListener('markerLost', () => {
@@ -74,32 +94,19 @@
                 button.style.display = 'none';
             });
 
-            button.addEventListener('click', () => {
-                if (!player) {
-                    player = new YT.Player('player', {
-                        height: '315',
-                        width: '560',
-                        videoId: '5waVHnnu_d4', // Замените VIDEO_ID на ID вашего YouTube видео
-                        playerVars: {
-                            'controls': 0,
-                            'playsinline': 1,
-                            'showinfo': 0,
-                            'autohide': 1
-                        },
-                        events: {
-                            'onReady': onPlayerReady
-                        }
-                    });
-                }
-                player.getIframe().style.display = 'block';
-                player.playVideo();
-                button.style.display = 'none';
-            });
-
             function onPlayerReady(event) {
-                event.target.playVideo();
+                updatePlayerPosition(marker); // Установка начальной позиции плеера
+                event.target.playVideo(); // Начать воспроизведение видео
             }
+
+            // Остановка видео при потере маркера
+            marker.addEventListener('markerLost', () => {
+                if (player && player.getPlayerState() === 1) {
+                    player.pauseVideo();
+                }
+                button.style.display = 'block';
+            });
         });
     </script>
 </body>
-</html> 
+</html>
