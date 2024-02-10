@@ -9,7 +9,8 @@
     <script src="https://www.youtube.com/iframe_api?key=AIzaSyD-lhhzP67JRJcvDwIO1z8bXlHdAbmOM44"></script>
     <style>
         body { margin: 0; overflow: hidden; }
-        #start-button { 
+
+        #start-button {
             position: absolute;
             top: 50%;
             left: 50%;
@@ -21,8 +22,7 @@
             width: 50px;
             height: 50px;
             cursor: pointer;
-            align-items: center;
-            justify-content: center;
+            display: none; // Начать с изначальной невидимости
         }
         #start-button:before {
             content: "";
@@ -52,7 +52,7 @@
 <body>
     <button id="start-button"></button>
     <!-- Загрузка видео при загрузке страницы -->
-    <div id="player" style="z-index: -1;">
+    <div id="player">
         <iframe id="ytplayer" type="text/html" width="640" height="360"
           src="https://www.youtube.com/embed/Uh05DkvXbLk?autoplay=1&controls=0&rel=0&showinfo=0"
           frameborder="0"></iframe>
@@ -68,28 +68,41 @@
 
     <script>
         var videoPlayed = false;
+        var videoStopped = false;
         const button = document.getElementById('start-button');
         const video = document.getElementById('player');
         const player = document.getElementById('ytplayer');
+        const marker = document.querySelector('#hiro-marker');
+
+        function startVideo() {
+            video.style.display = 'block';
+            if (!videoPlayed) {
+                videoPlayed = true;
+                player.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+            }
+        }
+
+        function stopVideo() {
+            if (videoPlayed) {
+                videoStopped = true;
+                player.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+            }
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
-            button.style.display = 'none'; // Скрыть кнопку до обнаружения маркера
-
-            // Обработчик для обнаружения маркера
-            const marker = document.querySelector('#hiro-marker');
             marker.addEventListener('markerFound', () => {
-                video.style.display = 'block'; // Показать видео при обнаружении маркера
-                if(videoPlayed) {
-                    player.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-                }
+                startVideo();
+                button.style.display = 'block';
+            });
+
+            marker.addEventListener('markerLost', () => {
+                stopVideo();
+                button.style.display = 'none';
+                video.style.display = 'none';
             });
 
             button.addEventListener('click', () => {
-                if (!videoPlayed) {
-                    videoPlayed = true;
-                    player.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-                    button.style.display = 'none';
-                }
+                startVideo(); // Возобновить видео при нажатии на кнопку
             });
         });
     </script>
